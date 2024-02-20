@@ -6,6 +6,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// format the required response
+func structureResponse(prices_data map[string]string) map[string]map[string]map[string]string {
+
+	return map[string]map[string]map[string]string{
+		"data": {
+			"bitcoin": prices_data,
+		},
+	}
+
+}
+
 func getLatestPrices(c *gin.Context) {
 
 	finalResponse, err := retrieve()
@@ -18,11 +29,10 @@ func getLatestPrices(c *gin.Context) {
 	if finalResponse == nil {
 		response, err := fetchData(COINDESK_API_URL)
 		if err != nil {
-			c.IndentedJSON(http.StatusNotFound, gin.H{"message": "Unable to fetch data from 3rd party", "error": err.Error()})
+			c.IndentedJSON(http.StatusNotFound, gin.H{"message": "Unable to fetch and parse data", "error": err.Error()})
 			return
 		}
-		pricesData := extractPrices(response)
-		finalResponse = structureResponse(pricesData)
+		finalResponse = structureResponse(response)
 		err = store(finalResponse)
 		if err != nil {
 			c.IndentedJSON(http.StatusNotFound, gin.H{"message": "Failed to store latest prices in cache", "error": err.Error()})

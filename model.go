@@ -9,7 +9,7 @@ import (
 const COINDESK_API_URL = "https://api.coindesk.com/v1/bpi/currentprice.json"
 
 // Fetches response & parses json
-func fetchData(apiURL string) (map[string]interface{}, error) {
+func fetchData(apiURL string) (map[string]string, error) {
 	response, err := http.Get(apiURL)
 	if err != nil {
 		return nil, err
@@ -27,8 +27,9 @@ func fetchData(apiURL string) (map[string]interface{}, error) {
 	if unmarshal_err != nil {
 		return nil, unmarshal_err
 	}
+	pricesData := extractPrices(json_response)
 
-	return json_response, nil
+	return pricesData, nil
 
 }
 
@@ -45,15 +46,4 @@ func extractPrices(response map[string]interface{}) map[string]string {
 	}
 
 	return bitcoin_prices
-}
-
-// make the required response
-func structureResponse(prices_data map[string]string) map[string]map[string]map[string]string {
-
-	return map[string]map[string]map[string]string{
-		"data": {
-			"bitcoin": prices_data,
-		},
-	}
-
 }
